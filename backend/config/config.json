@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "K@mrulislamshawn2003",
+    "database": "logicore",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "K@mrulislamshawn2003",
+    "database": "logicore_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "K@mrulislamshawn2003",
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
