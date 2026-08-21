@@ -1,15 +1,9 @@
 {
-  "name": "logicore-frontend",
+  "name": "logicore",
   "version": "1.0.0",
-  "description": "LogiCore - Supply Chain Management System Frontend",
-  "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "install": "cd frontend && npm install",
+    "build": "cd frontend && npm run build"
   }
 }
