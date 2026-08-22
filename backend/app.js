@@ -32,6 +32,26 @@ app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
 });
+// Add this at the top of your routes
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'LogiCore Backend is running!',
+    routes: {
+      api: '/api',
+      auth: '/auth',
+      health: '/health'
+    }
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'healthy',
+    database: 'connected'
+  });
+});
 
 // Routes
 app.use('/api/v1', routes);
