@@ -11,7 +11,7 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['https://logicore-smcs-9v18jl90z-shawn-dev.vercel.app'],
+  origin: process.env.CORS_ORIGIN || 'https://logicore-smcs-9v18jl90z-shawn-dev.vercel.app',
   credentials: true
 }));
 
