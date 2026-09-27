@@ -26,7 +26,7 @@ const DashboardPage = () => {
         dashboardService.getStats(),
         dashboardService.getSalesAnalytics(30),
       ]);
-      setStats(statsRes.data);
+      setStats(statsRes.dashboard);
       setSalesAnalytics(salesRes.analytics);
     } catch (error) {
       console.error('Failed to fetch dashboard:', error);
@@ -174,7 +174,7 @@ const DashboardPage = () => {
                     ${order.total_amount}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(order.created_at).toLocaleDateString()}
+                    {new Date(order.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))}

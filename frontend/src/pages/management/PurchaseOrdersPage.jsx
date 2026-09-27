@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { purchaseOrderService } from '../../services/purchaseOrderService';
 import { supplierService } from '../../services/supplierService';
 import { warehouseService } from '../../services/warehouseService';
@@ -16,6 +17,8 @@ import toast from 'react-hot-toast';
 
 const PurchaseOrdersPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canManage = ['admin', 'warehouse_manager'].includes(user?.role);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -142,7 +145,7 @@ const PurchaseOrdersPage = () => {
     {
       key: 'created_at',
       label: 'Created',
-      render: (po) => new Date(po.created_at).toLocaleDateString(),
+      render: (po) => new Date(po.createdAt).toLocaleDateString(),
     },
     {
       key: 'actions',
@@ -162,10 +165,12 @@ const PurchaseOrdersPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Purchase Orders</h2>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <FiPlus className="mr-2 h-5 w-5" />
-          Create PO
-        </Button>
+        {canManage && (
+          <Button onClick={() => setShowCreateModal(true)}>
+            <FiPlus className="mr-2 h-5 w-5" />
+            Create PO
+          </Button>
+        )}
       </div>
 
       {/* Filters */}

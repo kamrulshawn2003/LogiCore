@@ -124,6 +124,26 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'created_by',
       as: 'inventoryMovements'
     });
+    User.hasOne(models.Cart, {
+      foreignKey: 'user_id',
+      as: 'cart'
+    });
+    User.hasMany(models.UserAddress, {
+      foreignKey: 'user_id',
+      as: 'addresses'
+    });
+    User.hasMany(models.Review, {
+      foreignKey: 'user_id',
+      as: 'reviews'
+    });
+    User.hasMany(models.Wishlist, {
+      foreignKey: 'user_id',
+      as: 'wishlist'
+    });
+    User.hasMany(models.Refund, {
+      foreignKey: 'user_id',
+      as: 'refunds'
+    });
   };
 
   return User;

@@ -13,6 +13,7 @@ module.exports = {
   generatePONumber: () => generateNumber('PO'),
   generateShipmentNumber: () => generateNumber('SHP'),
   generateTrackingNumber: () => generateNumber('TRK'),
+  generateRefundNumber: () => generateNumber('RF'),
   generateSKU: (category, supplier) => {
     const cat = category.substring(0, 3).toUpperCase();
     const sup = supplier.substring(0, 3).toUpperCase();

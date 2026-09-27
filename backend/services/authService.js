@@ -16,7 +16,9 @@ class AuthService {
     });
     
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      const error = new Error('User with this email already exists');
+      error.statusCode = 409;
+      throw error;
     }
     
     // Create user

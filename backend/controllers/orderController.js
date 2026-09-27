@@ -232,6 +232,107 @@ class OrderController {
       next(error);
     }
   }
+
+  async checkoutFromCart(req, res, next) {
+    try {
+      if (!req.user) {
+        return res.status(401).json(ApiResponse.error('Authentication required'));
+      }
+
+      const order = await orderService.checkoutFromCart(req.user.id, req.body);
+
+      await AuditLog.create({
+        user_id: req.user.id,
+        action: 'ORDER_CHECKOUT',
+        entity_type: 'Order',
+        entity_id: order.id,
+        new_value: {
+          order_number: order.order_number,
+          total_amount: order.total_amount
+        },
+        ip_address: req.ip
+      });
+
+      res.status(201).json(ApiResponse.success({ order }));
+    } catch (error) {
+      if (
+        error.message === 'Shipping address is required' ||
+        error.message === 'Shipping address not found' ||
+        error.message === 'Your cart is empty'
+      ) {
+        return res.status(400).json(ApiResponse.error(error.message));
+      }
+      if (
+        error.message.includes('Insufficient') ||
+        error.message.includes('Product with ID') ||
+        error.message.includes('No inventory')
+      ) {
+        return res.status(400).json(ApiResponse.error(error.message));
+      }
+      next(error);
+    }
+  }
+
+  async payOrder(req, res, next) {
+    try {
+      if (!req.user) {
+        return res.status(401).json(ApiResponse.error('Authentication required'));
+      }
+
+      const order = await orderService.payOrder(req.params.id, req.user.id);
+
+      await AuditLog.create({
+        user_id: req.user.id,
+        action: 'ORDER_PAY',
+        entity_type: 'Order',
+        entity_id: order.id,
+        new_value: { payment_status: 'PAID' },
+        ip_address: req.ip
+      });
+
+      res.json(ApiResponse.success({ order }));
+    } catch (error) {
+      if (
+        error.message === 'Order not found' ||
+        error.message === 'Order is already paid' ||
+        error.message === 'Cancelled orders cannot be paid' ||
+        error.message === 'You can only pay for your own orders'
+      ) {
+        return res.status(400).json(ApiResponse.error(error.message));
+      }
+      next(error);
+    }
+  }
+
+  async confirmReceipt(req, res, next) {
+    try {
+      if (!req.user) {
+        return res.status(401).json(ApiResponse.error('Authentication required'));
+      }
+
+      const order = await orderService.confirmReceipt(req.params.id, req.user.id);
+
+      await AuditLog.create({
+        user_id: req.user.id,
+        action: 'ORDER_CONFIRM_RECEIPT',
+        entity_type: 'Order',
+        entity_id: order.id,
+        new_value: { status: 'DELIVERED' },
+        ip_address: req.ip
+      });
+
+      res.json(ApiResponse.success({ order }));
+    } catch (error) {
+      if (
+        error.message === 'Order not found' ||
+        error.message === 'You can only confirm your own orders' ||
+        error.message === 'Only shipped orders can be confirmed as received'
+      ) {
+        return res.status(400).json(ApiResponse.error(error.message));
+      }
+      next(error);
+    }
+  }
 }
 
 module.exports = new OrderController();

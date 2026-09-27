@@ -5,7 +5,7 @@ import { useNotifications } from '../context/NotificationContext';
 import { 
   FiHome, FiPackage, FiUsers, FiTruck, FiShoppingCart, 
   FiMapPin, FiClipboard, FiBarChart2, FiBell, FiLogOut,
-  FiMenu, FiX, FiSettings
+  FiMenu, FiX, FiSettings, FiRefreshCcw
 } from 'react-icons/fi';
 
 const MainLayout = () => {
@@ -23,6 +23,7 @@ const MainLayout = () => {
     { name: 'Inventory', href: '/inventory', icon: FiClipboard, roles: ['admin', 'warehouse_manager'] },
     { name: 'Purchase Orders', href: '/purchase-orders', icon: FiShoppingCart, roles: ['admin', 'warehouse_manager', 'supplier'] },
     { name: 'Orders', href: '/orders', icon: FiShoppingCart, roles: ['admin', 'warehouse_manager'] },
+    { name: 'Refunds & Returns', href: '/refunds', icon: FiRefreshCcw, roles: ['admin', 'warehouse_manager'] },
     { name: 'Shipments', href: '/shipments', icon: FiTruck, roles: ['admin', 'warehouse_manager', 'driver'] },
     { name: 'Drivers', href: '/drivers', icon: FiTruck, roles: ['admin', 'warehouse_manager'] },
     { name: 'Users', href: '/users', icon: FiUsers, roles: ['admin'] },
@@ -78,7 +79,7 @@ const MainLayout = () => {
       {/* Main content area with left padding for sidebar */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         {/* Top header */}
-        <header className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
+        <header className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow border-t-4 border-brand-600">
           <button
             type="button"
             className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none lg:hidden"
@@ -142,12 +143,12 @@ const SidebarContent = ({ navigation, user, onNavigate, currentPath }) => {
   return (
     <div className="flex flex-col h-full pt-5 pb-4 overflow-y-auto">
       <div className="flex items-center flex-shrink-0 px-4">
-        <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-lg flex items-center justify-center shadow">
           <span className="text-white text-xl font-bold">LC</span>
         </div>
         <div className="ml-3">
           <h1 className="text-lg font-bold text-gray-900">LogiCore</h1>
-          <p className="text-xs text-gray-500 capitalize">{user?.role?.replace(/_/g, ' ') || 'User'}</p>
+          <p className="text-xs text-brand-600 font-medium">{user?.role?.replace(/_/g, ' ') || 'User'}</p>
         </div>
       </div>
       <nav className="mt-5 flex-1 px-2 space-y-1">

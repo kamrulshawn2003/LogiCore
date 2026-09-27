@@ -1,0 +1,37 @@
+# Render blueprint for the LogiCore backend (optional one-click setup).
+# Import this file at https://dashboard.render.com/blueprints
+# Fill in the values marked "sync: false" in the Render dashboard after import.
+services:
+  - type: web
+    name: logicore-api
+    runtime: node
+    repo: https://github.com/kamrulshawn2003/LogiCore.git
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRE
+        value: 24h
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX
+        value: "1000"
+      # --- fill these in the Render dashboard after import ---
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false

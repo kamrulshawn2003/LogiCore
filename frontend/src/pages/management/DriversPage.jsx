@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { driverService } from '../../services/driverService';
 import { userService } from '../../services/userService';
 import Table from '../../components/common/Table';
@@ -14,6 +15,8 @@ import toast from 'react-hot-toast';
 
 const DriversPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [drivers, setDrivers] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,8 +29,12 @@ const DriversPage = () => {
 
   useEffect(() => {
     fetchDrivers();
-    fetchUsers();
-  }, [filters]);
+    // Only admins can create drivers (POST /drivers is admin-only), so only
+    // admins need the user list for the "Add Driver" dropdown.
+    if (isAdmin) {
+      fetchUsers();
+    }
+  }, [filters, isAdmin]);
 
   const fetchDrivers = async (page = 1) => {
     setLoading(true);
@@ -133,12 +140,14 @@ const DriversPage = () => {
           >
             <FiEye className="h-5 w-5" />
           </button>
-          <button
-            onClick={() => setDeleteDriver(driver)}
-            className="text-red-600 hover:text-red-900"
-          >
-            <FiTrash2 className="h-5 w-5" />
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setDeleteDriver(driver)}
+              className="text-red-600 hover:text-red-900"
+            >
+              <FiTrash2 className="h-5 w-5" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -148,10 +157,12 @@ const DriversPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Drivers</h2>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <FiPlus className="mr-2 h-5 w-5" />
-          Add Driver
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setShowCreateModal(true)}>
+            <FiPlus className="mr-2 h-5 w-5" />
+            Add Driver
+          </Button>
+        )}
       </div>
 
       {/* Filters */}

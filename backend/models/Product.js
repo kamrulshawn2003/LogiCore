@@ -128,6 +128,14 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'product_id',
       as: 'purchaseOrderItems'
     });
+    Product.hasMany(models.ProductImage, {
+      foreignKey: 'product_id',
+      as: 'images'
+    });
+    Product.hasMany(models.Review, {
+      foreignKey: 'product_id',
+      as: 'reviews'
+    });
   };
 
   return Product;

@@ -204,6 +204,7 @@ class ReportService {
       });
       
       return {
+        name: supplier.name,
         supplier: {
           id: supplier.id,
           name: supplier.name,

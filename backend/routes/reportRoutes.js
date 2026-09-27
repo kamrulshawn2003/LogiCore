@@ -8,6 +8,6 @@ router.get('/sales', auth, authorize('admin', 'warehouse_manager'), reportContro
 router.get('/inventory', auth, authorize('admin', 'warehouse_manager'), reportController.generateInventoryReport);
 router.get('/purchases', auth, authorize('admin', 'warehouse_manager'), reportController.generatePurchaseReport);
 router.get('/shipments', auth, authorize('admin', 'warehouse_manager'), reportController.generateShipmentReport);
-router.get('/supplier-performance', auth, authorize('admin'), reportController.generateSupplierPerformanceReport);
+router.get('/supplier-performance', auth, authorize('admin', 'warehouse_manager'), reportController.generateSupplierPerformanceReport);
 
 module.exports = router;

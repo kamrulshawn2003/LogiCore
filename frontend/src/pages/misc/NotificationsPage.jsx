@@ -68,7 +68,7 @@ const NotificationsPage = () => {
                   <h3 className="font-medium text-gray-900">{notification.title}</h3>
                   <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
                   <p className="text-xs text-gray-400 mt-2">
-                    {new Date(notification.created_at).toLocaleString()}
+                    {new Date(notification.createdAt).toLocaleString()}
                   </p>
                 </div>
                 <div className="flex space-x-2">

@@ -42,3 +42,5 @@ verify_password.js
 debug_bcrypt.js
 reset_demo_passwords.js
 fix_audit.js
+# sequelize-cli config (secrets are env-driven via config/env-config.js)
+backend/config/config.json

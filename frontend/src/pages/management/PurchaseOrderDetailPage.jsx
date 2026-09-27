@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { purchaseOrderService } from '../../services/purchaseOrderService';
 import Button from '../../components/common/Button';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -12,6 +13,11 @@ import toast from 'react-hot-toast';
 const PurchaseOrderDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const role = user?.role;
+  const canManage = ['admin', 'warehouse_manager'].includes(role);
+  const isAdmin = role === 'admin';
+  const isSupplier = role === 'supplier';
   const [purchaseOrder, setPurchaseOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
@@ -105,19 +111,19 @@ const PurchaseOrderDetailPage = () => {
           Purchase Order {purchaseOrder.po_number}
         </h2>
         <div className="flex space-x-3">
-          {purchaseOrder.status === 'DRAFT' && (
+          {purchaseOrder.status === 'DRAFT' && canManage && (
             <>
               <Button onClick={() => handleStatusUpdate('submit')}>Submit</Button>
               <Button variant="danger" onClick={() => handleStatusUpdate('cancel')}>Cancel</Button>
             </>
           )}
-          {purchaseOrder.status === 'SUBMITTED' && (
+          {purchaseOrder.status === 'SUBMITTED' && isAdmin && (
             <Button onClick={() => handleStatusUpdate('approve')}>Approve</Button>
           )}
-          {purchaseOrder.status === 'APPROVED' && (
+          {purchaseOrder.status === 'APPROVED' && isSupplier && (
             <Button onClick={() => handleStatusUpdate('accept')}>Accept</Button>
           )}
-          {(purchaseOrder.status === 'ACCEPTED' || purchaseOrder.status === 'PARTIALLY_RECEIVED') && (
+          {(purchaseOrder.status === 'ACCEPTED' || purchaseOrder.status === 'PARTIALLY_RECEIVED') && canManage && (
             <Button onClick={() => setShowReceiveModal(true)}>Receive Items</Button>
           )}
         </div>
@@ -138,7 +144,7 @@ const PurchaseOrderDetailPage = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Received</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subtotal</th>
-                    {purchaseOrder.status === 'ACCEPTED' && (
+                    {purchaseOrder.status === 'ACCEPTED' && canManage && (
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                     )}
                   </tr>
@@ -162,7 +168,7 @@ const PurchaseOrderDetailPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ${parseFloat(item.subtotal).toFixed(2)}
                       </td>
-                      {purchaseOrder.status === 'ACCEPTED' && (
+                      {purchaseOrder.status === 'ACCEPTED' && canManage && (
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Button
                             size="sm"

@@ -15,6 +15,12 @@ const dashboardRoutes = require('./dashboardRoutes');
 const reportRoutes = require('./reportRoutes');
 const notificationRoutes = require('./notificationRoutes');
 const auditLogRoutes = require('./auditLogRoutes');
+const storeRoutes = require('./storeRoutes');
+const cartRoutes = require('./cartRoutes');
+const addressRoutes = require('./addressRoutes');
+const reviewRoutes = require('./reviewRoutes');
+const wishlistRoutes = require('./wishlistRoutes');
+const refundRoutes = require('./refundRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -31,5 +37,13 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/reports', reportRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/audit-logs', auditLogRoutes);
+
+// JD-style storefront & customer commerce
+router.use('/store', storeRoutes);
+router.use('/cart', cartRoutes);
+router.use('/addresses', addressRoutes);
+router.use('/reviews', reviewRoutes);
+router.use('/wishlist', wishlistRoutes);
+router.use('/refunds', refundRoutes);
 
 module.exports = router;

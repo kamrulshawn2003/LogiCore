@@ -56,7 +56,7 @@ const InventoryMovementsPage = () => {
     {
       key: 'created_at',
       label: 'Date',
-      render: (movement) => new Date(movement.created_at).toLocaleString(),
+      render: (movement) => new Date(movement.createdAt).toLocaleString(),
     },
     {
       key: 'product',

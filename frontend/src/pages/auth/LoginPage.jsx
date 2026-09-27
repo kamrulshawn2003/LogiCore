@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -9,9 +9,11 @@ import { FiMail, FiLock } from 'react-icons/fi';
 const LoginPage = () => {
   const { login, loading } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '';
 
   const onSubmit = async (data) => {
-    await login(data.email, data.password);
+    await login(data.email, data.password, redirect);
   };
 
   return (
@@ -19,7 +21,10 @@ const LoginPage = () => {
       <h2 className="text-2xl font-bold text-gray-900 text-center">Sign in to your account</h2>
       <p className="mt-2 text-center text-sm text-gray-600">
         Or{' '}
-        <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+        <Link
+          to={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : '/register'}
+          className="font-medium text-primary-600 hover:text-primary-500"
+        >
           create a new account
         </Link>
       </p>

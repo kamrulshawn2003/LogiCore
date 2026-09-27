@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('../../app');
 const { 
   sequelize, 
   User, 
@@ -12,8 +12,8 @@ const {
   Order,
   Shipment,
   Driver
-} = require('../models');
-const { generateToken } = require('../utils/generateToken');
+} = require('../../models');
+const { generateToken } = require('../../utils/generateToken');
 
 let adminToken, managerToken, supplierToken, driverToken, customerToken;
 let adminUser, managerUser, supplierUser, driverUser, customerUser;
@@ -32,7 +32,7 @@ beforeAll(async () => {
   
   managerUser = await User.create({
     name: 'Manager', email: 'manager@test.com', password: 'Password123!',
-    role: 'warehouse_manager', status: 'active', warehouse_id: 1
+    role: 'warehouse_manager', status: 'active'
   });
   managerToken = generateToken(managerUser);
   
@@ -66,6 +66,9 @@ beforeAll(async () => {
     name: 'Main Warehouse', code: 'WH-MAIN', manager_id: managerUser.id
   });
   
+  // Link the manager to the warehouse created above
+  await managerUser.update({ warehouse_id: warehouse.id });
+
   product = await Product.create({
     sku: 'TEST-001', name: 'Test Product', price: 100,
     cost_price: 50, reorder_level: 10,

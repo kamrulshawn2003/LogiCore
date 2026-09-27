@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
@@ -9,9 +9,11 @@ import Button from '../../components/common/Button';
 const RegisterPage = () => {
   const { register: registerUser, loading } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '';
 
   const onSubmit = async (data) => {
-    await registerUser(data);
+    await registerUser(data, redirect);
   };
 
   return (

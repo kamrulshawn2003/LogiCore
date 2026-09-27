@@ -67,7 +67,7 @@ const OrdersPage = () => {
     {
       key: 'created_at',
       label: 'Date',
-      render: (order) => new Date(order.created_at).toLocaleDateString(),
+      render: (order) => new Date(order.createdAt).toLocaleDateString(),
     },
     {
       key: 'actions',

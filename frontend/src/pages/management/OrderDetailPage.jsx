@@ -190,7 +190,7 @@ const OrderDetailPage = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Created At</p>
-                <p className="text-sm text-gray-900">{new Date(order.created_at).toLocaleString()}</p>
+                <p className="text-sm text-gray-900">{new Date(order.createdAt).toLocaleString()}</p>
               </div>
             </div>
           </div>

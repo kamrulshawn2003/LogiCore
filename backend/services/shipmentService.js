@@ -246,7 +246,10 @@ class ShipmentService {
       
       return populatedShipment;
     } catch (error) {
-      await transaction.rollback();
+      // Only roll back if the transaction has not already finished
+      if (transaction && !transaction.finished) {
+        await transaction.rollback();
+      }
       throw error;
     }
   }
@@ -322,7 +325,10 @@ class ShipmentService {
       
       return populatedShipment;
     } catch (error) {
-      await transaction.rollback();
+      // Only roll back if the transaction has not already finished
+      if (transaction && !transaction.finished) {
+        await transaction.rollback();
+      }
       throw error;
     }
   }
@@ -418,43 +424,48 @@ class ShipmentService {
       
       const populatedShipment = await this.getShipmentById(shipmentId);
       
-      // Send notifications based on status change
-      await notificationService.notifyShipmentStatusChange(populatedShipment, oldStatus, newStatus);
-      
-      // Special notifications for specific statuses
-      if (newStatus === 'DELIVERED' && order) {
-        await notificationService.createNotification({
-          user_id: order.customer_id,
-          title: 'Order Delivered',
-          message: `Your order ${order.order_number} has been delivered successfully!`,
-          type: 'SUCCESS',
-          link: `/orders/${order.id}`
-        });
-      }
-      
-      if (newStatus === 'OUT_FOR_DELIVERY' && order) {
-        await notificationService.createNotification({
-          user_id: order.customer_id,
-          title: 'Order Out for Delivery',
-          message: `Your order ${order.order_number} is out for delivery and will arrive soon.`,
-          type: 'INFO',
-          link: `/orders/${order.id}`
-        });
-      }
-      
-      if (newStatus === 'FAILED' && order) {
-        await notificationService.createNotification({
-          user_id: order.customer_id,
-          title: 'Delivery Failed',
-          message: `We apologize, but the delivery of your order ${order.order_number} has failed. We will contact you shortly.`,
-          type: 'ERROR',
-          link: `/orders/${order.id}`
-        });
+      // Notifications must never fail an already-committed status change
+      try {
+        // Special notifications for specific statuses
+        if (newStatus === 'DELIVERED' && order) {
+          await notificationService.createNotification({
+            user_id: order.customer_id,
+            title: 'Order Delivered',
+            message: `Your order ${order.order_number} has been delivered successfully!`,
+            type: 'SUCCESS',
+            link: `/orders/${order.id}`
+          });
+        }
+        
+        if (newStatus === 'OUT_FOR_DELIVERY' && order) {
+          await notificationService.createNotification({
+            user_id: order.customer_id,
+            title: 'Order Out for Delivery',
+            message: `Your order ${order.order_number} is out for delivery and will arrive soon.`,
+            type: 'INFO',
+            link: `/orders/${order.id}`
+          });
+        }
+        
+        if (newStatus === 'FAILED' && order) {
+          await notificationService.createNotification({
+            user_id: order.customer_id,
+            title: 'Delivery Failed',
+            message: `We apologize, but the delivery of your order ${order.order_number} has failed. We will contact you shortly.`,
+            type: 'ERROR',
+            link: `/orders/${order.id}`
+          });
+        }
+      } catch (notifyError) {
+        console.error('Shipment notification failed (status update already committed):', notifyError.message);
       }
       
       return populatedShipment;
     } catch (error) {
-      await transaction.rollback();
+      // Only roll back if the transaction has not already finished
+      if (transaction && !transaction.finished) {
+        await transaction.rollback();
+      }
       throw error;
     }
   }

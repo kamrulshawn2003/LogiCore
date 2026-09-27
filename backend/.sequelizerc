@@ -1,0 +1,6 @@
+// sequelize-cli entry point. Points to the JS config so environment
+// variables (backend/.env locally, service env on Render) are always used
+// and no secrets are committed to the repository.
+module.exports = {
+  config: './config/env-config.js'
+};

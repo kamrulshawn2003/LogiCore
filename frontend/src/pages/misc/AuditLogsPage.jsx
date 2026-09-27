@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auditLogService } from '../../services/auditLogService';
+import api from '../../services/api';
 import Table from '../../components/common/Table';
 import StatusBadge from '../../components/common/StatusBadge';
 import { FiSearch, FiFilter, FiDownload } from 'react-icons/fi';
@@ -61,7 +62,7 @@ const AuditLogsPage = () => {
     {
       key: 'created_at',
       label: 'Timestamp',
-      render: (log) => new Date(log.created_at).toLocaleString(),
+      render: (log) => new Date(log.createdAt).toLocaleString(),
     },
     {
       key: 'user',

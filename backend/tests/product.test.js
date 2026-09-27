@@ -149,7 +149,7 @@ describe('Product Endpoints', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.product.name).toBe('Updated Product');
-      expect(res.body.data.product.price).toBe('149.99');
+      expect(Number(res.body.data.product.price)).toBe(149.99);
     });
   });
 

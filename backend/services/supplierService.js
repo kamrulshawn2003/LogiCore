@@ -291,27 +291,20 @@ class SupplierService {
     const activeSuppliers = await Supplier.count({ where: { status: 'active' } });
     const inactiveSuppliers = await Supplier.count({ where: { status: 'inactive' } });
     
-    const topSuppliers = await Supplier.findAll({
-      attributes: [
-        'id',
-        'name',
-        'email',
-        'rating',
-        [sequelize.fn('COUNT', sequelize.col('purchaseOrders.id')), 'total_orders']
-      ],
-      include: [
-        {
-          model: PurchaseOrder,
-          as: 'purchaseOrders',
-          attributes: [],
-          required: false
-        }
-      ],
-      group: ['Supplier.id'],
-      order: [[sequelize.literal('total_orders'), 'DESC']],
-      limit: 10,
-      where: { status: 'active' }
+    // Top suppliers by purchase-order count — computed per supplier to avoid the
+    // SQL subquery join issue when counting over an aliased include
+    const activeSupplierRows = await Supplier.findAll({
+      where: { status: 'active' },
+      attributes: ['id', 'name', 'email', 'rating']
     });
+
+    const topSuppliers = [];
+    for (const supplier of activeSupplierRows) {
+      const totalOrders = await PurchaseOrder.count({ where: { supplier_id: supplier.id } });
+      topSuppliers.push({ ...supplier.toJSON(), total_orders: totalOrders });
+    }
+    topSuppliers.sort((a, b) => b.total_orders - a.total_orders);
+    topSuppliers.splice(10);
     
     const averageRating = await Supplier.findOne({
       attributes: [

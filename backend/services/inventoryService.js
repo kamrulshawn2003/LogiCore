@@ -193,7 +193,9 @@ class InventoryService {
     const { product_id, from_warehouse_id, to_warehouse_id, quantity, reason } = transferData;
     
     if (from_warehouse_id === to_warehouse_id) {
-      throw new Error('Source and destination warehouses must be different');
+      const error = new Error('Source and destination warehouses must be different');
+      error.statusCode = 400;
+      throw error;
     }
     
     // Start transaction
@@ -208,13 +210,17 @@ class InventoryService {
       });
       
       if (!sourceInventory) {
-        throw new Error('Source inventory not found');
+        const error = new Error('Source inventory not found');
+        error.statusCode = 400;
+        throw error;
       }
       
       const availableQuantity = sourceInventory.quantity - sourceInventory.reserved_quantity;
       
       if (quantity > availableQuantity) {
-        throw new Error(`Insufficient stock. Available: ${availableQuantity}, Requested: ${quantity}`);
+        const error = new Error(`Insufficient stock. Available: ${availableQuantity}, Requested: ${quantity}`);
+        error.statusCode = 400;
+        throw error;
       }
       
       // Find or create destination inventory
@@ -354,7 +360,9 @@ class InventoryService {
       const availableQuantity = inventory.quantity - inventory.reserved_quantity;
       
       if (quantity > availableQuantity) {
-        throw new Error(`Insufficient stock. Available: ${availableQuantity}, Requested: ${quantity}`);
+        const error = new Error(`Insufficient stock. Available: ${availableQuantity}, Requested: ${quantity}`);
+        error.statusCode = 400;
+        throw error;
       }
       
       const oldQuantity = inventory.quantity;
@@ -408,7 +416,9 @@ class InventoryService {
       const availableQuantity = inventory.quantity - inventory.reserved_quantity;
       
       if (quantity > availableQuantity) {
-        throw new Error(`Insufficient stock. Available: ${availableQuantity}, Requested: ${quantity}`);
+        const error = new Error(`Insufficient stock. Available: ${availableQuantity}, Requested: ${quantity}`);
+        error.statusCode = 400;
+        throw error;
       }
       
       const oldReserved = inventory.reserved_quantity;

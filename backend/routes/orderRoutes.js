@@ -14,6 +14,13 @@ router.get('/statistics', auth, authorize('admin', 'warehouse_manager'), orderCo
 router.get('/my-orders', auth, authorize('customer'), orderController.getCustomerOrders);
 router.get('/:id', auth, authorize('admin', 'warehouse_manager', 'customer'), orderController.getOrderById);
 
+// Checkout from cart (customer flow)
+router.post('/checkout', auth, authorize('customer'), orderController.checkoutFromCart);
+
+// Payment & receipt (customer flow)
+router.post('/:id/pay', auth, authorize('customer'), orderController.payOrder);
+router.post('/:id/confirm-receipt', auth, authorize('customer'), orderController.confirmReceipt);
+
 router.post('/', auth, authorize('customer', 'admin'), createOrderValidator, orderController.createOrder);
 router.patch('/:id/status', auth, authorize('admin', 'warehouse_manager'), updateOrderStatusValidator, orderController.updateOrderStatus);
 router.post('/:id/cancel', auth, authorize('customer', 'admin'), orderController.cancelOrder);

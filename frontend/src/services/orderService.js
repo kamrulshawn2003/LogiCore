@@ -25,6 +25,18 @@ const orderService = {
     const response = await api.get('/orders/my-orders', { params });
     return response.data;
   },
+  checkout: async (data) => {
+    const response = await api.post('/orders/checkout', data);
+    return response.data.data.order;
+  },
+  pay: async (id) => {
+    const response = await api.post(`/orders/${id}/pay`);
+    return response.data.data.order;
+  },
+  confirmReceipt: async (id) => {
+    const response = await api.post(`/orders/${id}/confirm-receipt`);
+    return response.data.data.order;
+  },
   getStatistics: async () => {
     const response = await api.get('/orders/statistics');
     return response.data.data;

@@ -53,6 +53,10 @@ const ReportsPage = () => {
         default:
           data = null;
       }
+      // Supplier performance returns a plain array — normalize to the {report:{data}} shape
+      if (data && Array.isArray(data.report)) {
+        data = { report: { summary: {}, data: data.report } };
+      }
       setReportData(data);
     } catch (error) {
       toast.error('Failed to fetch report');
@@ -140,7 +144,7 @@ const ReportsPage = () => {
                 <div key={key} className="bg-white rounded-lg shadow p-4">
                   <p className="text-sm text-gray-500 capitalize">{key.replace(/_/g, ' ')}</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {typeof value === 'number' && key.includes('value') ? `$${value.toFixed(2)}` : value}
+                    {key.includes('value') && typeof value !== 'object' && !Number.isNaN(Number(value)) ? `$${Number(value).toFixed(2)}` : value}
                   </p>
                 </div>
               ))}
@@ -174,11 +178,11 @@ const ReportsPage = () => {
                 ) : (
                   <BarChart data={reportData.report.data}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey={(d) => d.name || d.order_number || d.tracking_number || (d.supplier && d.supplier.name) || `#${d.id}`} />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="value" fill="#8884d8" />
+                    <Bar dataKey={reportType === 'supplier' ? 'total_value' : 'value'} fill="#8884d8" />
                   </BarChart>
                 )}
               </ResponsiveContainer>

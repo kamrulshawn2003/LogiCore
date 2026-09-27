@@ -41,7 +41,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  // JD-style home page per role: guests browse the store, staff go to their
+  // own console. Driver used to be sent to /dashboard, which immediately
+  // triggered "You do not have permission" + a bounce — route by role instead.
+  const roleHome = (role) => {
+    switch (role) {
+      case 'admin':
+      case 'warehouse_manager':
+        return '/dashboard';
+      case 'supplier':
+        return '/purchase-orders';
+      case 'driver':
+        return '/shipments';
+      case 'customer':
+        return '/store';
+      default:
+        return '/store';
+    }
+  };
+
+  const login = async (email, password, redirect = null) => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
         email,
@@ -55,7 +74,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       
       toast.success('Login successful!');
-      navigate('/dashboard');
+      navigate(redirect || roleHome(userData.role));
       
       return { success: true };
     } catch (error) {
@@ -65,7 +84,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
+  const register = async (userData, redirect = null) => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, userData);
       
@@ -76,7 +95,7 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       
       toast.success('Registration successful!');
-      navigate('/dashboard');
+      navigate(redirect || roleHome(user.role));
       
       return { success: true };
     } catch (error) {
@@ -91,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     toast.success('Logged out successfully');
-    navigate('/login');
+    navigate('/store');
   };
 
   const updateUser = (userData) => {

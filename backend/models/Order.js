@@ -126,6 +126,14 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'order_id',
       as: 'shipment'
     });
+    Order.hasMany(models.Review, {
+      foreignKey: 'order_id',
+      as: 'reviews'
+    });
+    Order.hasMany(models.Refund, {
+      foreignKey: 'order_id',
+      as: 'refunds'
+    });
   };
 
   return Order;

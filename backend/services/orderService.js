@@ -7,6 +7,9 @@ const {
   Inventory,
   InventoryMovement,
   Shipment,
+  UserAddress,
+  CartItem,
+  Cart,
   sequelize 
 } = require('../models');
 const { Op } = require('sequelize');
@@ -87,7 +90,7 @@ class OrderService {
             {
               model: Product,
               as: 'product',
-              attributes: ['id', 'sku', 'name']
+              attributes: ['id', 'sku', 'name', 'image_url', 'unit', 'price']
             }
           ]
         },
@@ -479,6 +482,160 @@ class OrderService {
     return result;
   }
 
+  /**
+   * JD-style checkout: build an order from the server-side cart + address book
+   */
+  async checkoutFromCart(userId, data) {
+    const { address_id, payment_method = 'ONLINE', notes } = data;
+
+    if (!address_id) {
+      throw new Error('Shipping address is required');
+    }
+
+    const address = await UserAddress.findOne({
+      where: { id: address_id, user_id: userId }
+    });
+
+    if (!address) {
+      throw new Error('Shipping address not found');
+    }
+
+    const cart = await Cart.findOne({ where: { user_id: userId } });
+    if (!cart) {
+      throw new Error('Your cart is empty');
+    }
+
+    const cartItems = await CartItem.findAll({
+      where: { cart_id: cart.id },
+      include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'status'] }]
+    });
+
+    if (!cartItems.length) {
+      throw new Error('Your cart is empty');
+    }
+
+    const items = cartItems.map((ci) => ({
+      product_id: ci.product_id,
+      quantity: ci.quantity
+    }));
+
+    const order = await this.createOrder(
+      {
+        items,
+        shipping_address: [
+          address.address_line1,
+          address.address_line2,
+          `${address.city} ${address.state || ''} ${address.zip || ''}`,
+          address.country
+        ]
+          .filter(Boolean)
+          .join(', '),
+        shipping_city: address.city,
+        shipping_state: address.state,
+        shipping_zip: address.zip,
+        shipping_country: address.country,
+        payment_method,
+        notes
+      },
+      userId
+    );
+
+    // Clear the cart after a successful order
+    await CartItem.destroy({ where: { cart_id: cart.id } });
+
+    return order;
+  }
+
+  /**
+   * Simulated payment: mark the order as paid and confirmed
+   */
+  async payOrder(id, userId) {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    if (order.customer_id !== userId) {
+      throw new Error('You can only pay for your own orders');
+    }
+
+    if (order.payment_status === 'PAID') {
+      throw new Error('Order is already paid');
+    }
+
+    if (order.status === 'CANCELLED') {
+      throw new Error('Cancelled orders cannot be paid');
+    }
+
+    const oldStatus = order.status;
+    const nextStatus = order.status === 'PENDING' ? 'CONFIRMED' : order.status;
+
+    const transaction = await sequelize.transaction();
+    try {
+      await order.update(
+        {
+          payment_status: 'PAID',
+          payment_method: order.payment_method || 'ONLINE',
+          status: nextStatus
+        },
+        { transaction }
+      );
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+
+    await notificationService.createNotification({
+      user_id: userId,
+      title: 'Payment Successful',
+      message: `Payment for order ${order.order_number} has been received`,
+      type: 'SUCCESS',
+      link: `/orders/${order.id}`
+    });
+
+    if (oldStatus !== nextStatus) {
+      await notificationService.notifyOrderStatusChange(order, oldStatus, nextStatus);
+    }
+
+    return this.getOrderById(order.id, userId, 'customer');
+  }
+
+  /**
+   * Customer confirms receipt of a shipped order
+   */
+  async confirmReceipt(id, userId) {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    if (order.customer_id !== userId) {
+      throw new Error('You can only confirm your own orders');
+    }
+
+    if (!['SHIPPED', 'OUT_FOR_DELIVERY'].includes(order.status)) {
+      throw new Error('Only shipped orders can be confirmed as received');
+    }
+
+    const oldStatus = order.status;
+
+    const transaction = await sequelize.transaction();
+    try {
+      await order.update({ status: 'DELIVERED' }, { transaction });
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+
+    await notificationService.notifyOrderStatusChange(order, oldStatus, 'DELIVERED');
+
+    return this.getOrderById(order.id, userId, 'customer');
+  }
+
   async getOrderStatistics() {
     const totalOrders = await Order.count();
     const pendingOrders = await Order.count({ where: { status: 'PENDING' } });
@@ -551,7 +708,7 @@ class OrderService {
             {
               model: Product,
               as: 'product',
-              attributes: ['id', 'sku', 'name']
+              attributes: ['id', 'sku', 'name', 'image_url', 'unit', 'price']
             }
           ]
         },

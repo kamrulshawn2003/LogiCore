@@ -27,7 +27,8 @@ describe('Final Quality Checks', () => {
   });
 
   test('Rate limiting works', async () => {
-    const requests = Array(101).fill().map(() => 
+    // app.js rate limit is max: 1000 requests / 15 min per IP; fire beyond it to trigger 429.
+    const requests = Array(1005).fill().map(() => 
       request(app).get('/api/v1/products')
     );
     

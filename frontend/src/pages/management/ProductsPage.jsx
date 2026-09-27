@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
 import Table from '../../components/common/Table';
@@ -14,6 +15,8 @@ import toast from 'react-hot-toast';
 
 const ProductsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -135,18 +138,22 @@ const ProductsPage = () => {
           >
             <FiEye className="h-5 w-5" />
           </button>
-          <button
-            onClick={() => navigate(`/products/${product.id}/edit`)}
-            className="text-green-600 hover:text-green-900"
-          >
-            <FiEdit2 className="h-5 w-5" />
-          </button>
-          <button
-            onClick={() => setDeleteProduct(product)}
-            className="text-red-600 hover:text-red-900"
-          >
-            <FiTrash2 className="h-5 w-5" />
-          </button>
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => navigate(`/products/${product.id}/edit`)}
+                className="text-green-600 hover:text-green-900"
+              >
+                <FiEdit2 className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setDeleteProduct(product)}
+                className="text-red-600 hover:text-red-900"
+              >
+                <FiTrash2 className="h-5 w-5" />
+              </button>
+            </>
+          )}
         </div>
       ),
     },
@@ -156,10 +163,12 @@ const ProductsPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Products</h2>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <FiPlus className="mr-2 h-5 w-5" />
-          Add Product
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setShowCreateModal(true)}>
+            <FiPlus className="mr-2 h-5 w-5" />
+            Add Product
+          </Button>
+        )}
       </div>
 
       {/* Search and Filters */}

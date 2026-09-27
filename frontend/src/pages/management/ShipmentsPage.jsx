@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { shipmentService } from '../../services/shipmentService';
 import { driverService } from '../../services/driverService';
 import Table from '../../components/common/Table';
@@ -13,6 +14,8 @@ import toast from 'react-hot-toast';
 
 const ShipmentsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canAssign = ['admin', 'warehouse_manager'].includes(user?.role);
   const [shipments, setShipments] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,8 +28,12 @@ const ShipmentsPage = () => {
 
   useEffect(() => {
     fetchShipments();
-    fetchDrivers();
-  }, [filters]);
+    // Only admins/managers can assign drivers (GET /drivers is not
+    // available to the driver role), so skip the dropdown for drivers.
+    if (canAssign) {
+      fetchDrivers();
+    }
+  }, [filters, canAssign]);
 
   const fetchShipments = async (page = 1) => {
     setLoading(true);
@@ -112,7 +119,7 @@ const ShipmentsPage = () => {
           >
             <FiEye className="h-5 w-5" />
           </button>
-          {['READY', 'ASSIGNED'].includes(shipment.status) && (
+          {canAssign && ['READY', 'ASSIGNED'].includes(shipment.status) && (
             <button
               onClick={() => {
                 setSelectedShipment(shipment);

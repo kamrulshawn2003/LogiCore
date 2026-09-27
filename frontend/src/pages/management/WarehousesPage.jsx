@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { warehouseService } from '../../services/warehouseService';
 import Table from '../../components/common/Table';
 import Button from '../../components/common/Button';
@@ -13,6 +14,8 @@ import toast from 'react-hot-toast';
 
 const WarehousesPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [warehouses, setWarehouses] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -92,17 +95,17 @@ const WarehousesPage = () => {
       render: (warehouse) => warehouse.manager?.name || 'Not assigned',
     },
     {
-      key: 'statistics',
+      key: 'statistics_products',
       label: 'Products',
       render: (warehouse) => warehouse.statistics?.total_products || 0,
     },
     {
-      key: 'statistics',
+      key: 'statistics_stock',
       label: 'Total Stock',
       render: (warehouse) => warehouse.statistics?.total_stock || 0,
     },
     {
-      key: 'statistics',
+      key: 'statistics_low_stock',
       label: 'Low Stock',
       render: (warehouse) => (
         warehouse.statistics?.low_stock_items > 0 ? (
@@ -130,12 +133,14 @@ const WarehousesPage = () => {
           >
             <FiEye className="h-5 w-5" />
           </button>
-          <button
-            onClick={() => setDeleteWarehouse(warehouse)}
-            className="text-red-600 hover:text-red-900"
-          >
-            <FiTrash2 className="h-5 w-5" />
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setDeleteWarehouse(warehouse)}
+              className="text-red-600 hover:text-red-900"
+            >
+              <FiTrash2 className="h-5 w-5" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -145,10 +150,12 @@ const WarehousesPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Warehouses</h2>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <FiPlus className="mr-2 h-5 w-5" />
-          Add Warehouse
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setShowCreateModal(true)}>
+            <FiPlus className="mr-2 h-5 w-5" />
+            Add Warehouse
+          </Button>
+        )}
       </div>
 
       {/* Search and Filters */}
