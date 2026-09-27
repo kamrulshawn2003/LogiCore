@@ -16,7 +16,7 @@ app.use(helmet());
 // array origins when the request actually carries an Origin header.
 const corsOrigins = (process.env.CORS_ORIGIN || '*')
   .split(',')
-  .map((s) => s.trim())
+  .map((s) => s.trim().replace(/\/+$/, ''))
   .filter(Boolean);
 const corsOrigin = corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins;
 
