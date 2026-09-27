@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../services/api';
 
 const NotificationContext = createContext();
 
@@ -30,7 +31,7 @@ export const NotificationProvider = ({ children }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/notifications`, {
+      const response = await axios.get(`${API_BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(response.data.data);
@@ -41,7 +42,7 @@ export const NotificationProvider = ({ children }) => {
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/notifications/unread`, {
+      const response = await axios.get(`${API_BASE_URL}/notifications/unread`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUnreadCount(response.data.data.unread_count);
@@ -53,7 +54,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notificationId) => {
     try {
       await axios.patch(
-        `${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`,
+        `${API_BASE_URL}/notifications/${notificationId}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -67,7 +68,7 @@ export const NotificationProvider = ({ children }) => {
   const markAllAsRead = async () => {
     try {
       await axios.patch(
-        `${import.meta.env.VITE_API_URL}/notifications/read-all`,
+        `${API_BASE_URL}/notifications/read-all`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

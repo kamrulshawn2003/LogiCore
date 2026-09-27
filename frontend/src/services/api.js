@@ -1,8 +1,23 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+/**
+ * Resolve the backend API base URL.
+ * - If VITE_API_URL is set, use it (stripping trailing slashes).
+ * - If it does not already end with /api/v1, append it — this keeps old
+ *   builds where VITE_API_URL pointed at the Render root working too.
+ * - If VITE_API_URL is missing entirely, fall back to the production backend.
+ */
+export const API_BASE_URL = (() => {
+  let base = (import.meta.env.VITE_API_URL || '').trim();
+  if (!base) base = 'https://logicore-api-85rj.onrender.com';
+  base = base.replace(/\/+$/, '');
+  if (!base.endsWith('/api/v1')) base += '/api/v1';
+  return base;
+})();
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
