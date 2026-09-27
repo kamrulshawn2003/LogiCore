@@ -95,10 +95,13 @@ git push origin main
 ## 4. Vercel — frontend
 
 1. Go to https://vercel.com → **Add New** → **Project** → import `kamrulshawn2003/LogiCore`.
-2. **Root Directory**: `frontend`
+2. **Root Directory**: `frontend` (this is required — the Vite app lives there).
 3. Framework preset: **Vite** (auto-detected). Vercel will run:
    - Build: `npm run build` → output: `dist`
-   - `vercel.json` in the repo root already rewrites all routes to `index.html` (SPA routing works — refreshing `/store` won't 404).
+   - `frontend/vercel.json` handles SPA routing — refreshing `/store`, `/dashboard`, `/shipments` etc. won't 404.
+   > ⚠️ If you previously got **"invalid vercel.json provided"**, that was the old root-level `vercel.json`
+   > (deprecated `builds` + `@vercel/static-build` format) — it has been **removed**. Delete the old
+   > Vercel project and re-import with **Root Directory = `frontend`**.
 4. **Environment Variables** (add in the Project → Settings → Environment Variables):
 
    | Key | Value |
@@ -133,7 +136,7 @@ git push origin main
 | Backend logs `ER_ACCESS_DENIED_ERROR` | Wrong `DB_USER` / `DB_PASSWORD`. |
 | Backend logs SSL error | Aiven requires TLS; production config already uses `ssl.require=true`. |
 | Frontend API calls fail with CORS error | `CORS_ORIGIN` on Render does not include your Vercel domain. Set it to the exact domain. |
-| Refresh of a deep link 404s on Vercel | `vercel.json` should be at repo ROOT with `routes: [{ "src": "/(.*)", "dest": "/index.html" }]`. |
+| Refresh of a deep link 404s on Vercel | `frontend/vercel.json` must exist with `{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }`. |
 | Free Render instance slow on first hit | Free tier sleeps; first request after idle takes a few seconds to wake. |
 | `npm run db:sync` re-created duplicate indexes | Only run sync once on a fresh DB; never re-run it on an existing database. |
 | `sequelize-cli` cannot find config | It uses `.sequelizerc` → `config/env-config.js` (env-driven, secrets never committed). |
